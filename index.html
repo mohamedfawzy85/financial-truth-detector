@@ -35,7 +35,7 @@
          Non-GAAP/Story: Amber-600
          Danger/Red Flag: Red-700
          Safe/Go: Emerald-700
-         Innovation/Growth: Violet-700 (New for this section)
+         Innovation/Growth: Violet-700
     -->
 
     <style>
@@ -96,6 +96,29 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stamp Animation for Narrative Test */
+        .stamp-animate {
+            animation: stampBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes stampBounce {
+            0% { transform: scale(3); opacity: 0; }
+            100% { transform: scale(1) rotate(-10deg); opacity: 1; }
+        }
+        .stamp-text {
+            transform: rotate(-10deg);
+            border: 4px solid;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: inline-block;
+        }
+        
+        /* Tooltip styling */
+        .tooltip-trigger:hover .tooltip-content {
+            display: block;
         }
     </style>
 </head>
@@ -229,30 +252,54 @@
                             <option value="supply">"Supply Chain Disruption"</option>
                             <option value="execution">"Internal Execution Issues" (Rare!)</option>
                         </select>
-                        
-                        <div id="narrative-quote" class="mt-6 italic text-slate-600 border-l-4 border-amber-400 pl-4 py-2 bg-stone-50">
-                            <!-- Dynamic Quote injected here -->
-                        </div>
+                        <p class="text-xs text-slate-500 mt-2 italic">Select an option to see the side-by-side comparison.</p>
                     </div>
 
-                    <div id="narrative-verdict-card" class="bg-stone-100 p-6 rounded-xl border border-stone-200 transition-all duration-500">
-                        <h3 class="text-lg font-bold mb-2">Verdict</h3>
-                        <div id="narrative-verdict-text" class="text-2xl font-bold text-slate-800">
-                            <!-- Dynamic Verdict -->
+                    <!-- Verdict Box -->
+                    <div class="bg-stone-50 p-6 rounded-xl border border-stone-200 flex flex-col items-center justify-center text-center h-48">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">The Truth Detector</h3>
+                        <div id="narrative-stamp" class="hidden">
+                            <!-- JS injected stamp -->
                         </div>
-                        <p id="narrative-verdict-explanation" class="text-sm mt-2 text-slate-600">
-                            <!-- Explanation -->
-                        </p>
                     </div>
                 </div>
 
-                <!-- Visualization -->
+                <!-- Comparison Visualization -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 h-full flex flex-col justify-center">
-                        <h3 class="text-center font-semibold text-slate-500 mb-4 uppercase tracking-wider text-sm">Revenue Growth Comparison (Same Period)</h3>
-                        <div class="chart-container">
-                            <canvas id="narrativeChart"></canvas>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+                        <!-- Side A: Company -->
+                        <div class="bg-red-50 p-6 rounded-xl border border-red-100 flex flex-col justify-center">
+                            <div class="flex items-center mb-3">
+                                <span class="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded uppercase">Side A: Management</span>
+                            </div>
+                            <p class="text-lg font-serif italic text-red-900" id="quote-company">
+                                "We missed earnings due to macro headwinds."
+                            </p>
+                            <div class="mt-4 flex items-baseline">
+                                <span class="text-3xl font-bold text-red-700" id="stat-company">-10%</span>
+                                <span class="ml-2 text-sm text-red-600 font-medium">Revenue Growth</span>
+                            </div>
                         </div>
+
+                        <!-- Side B: Competitor -->
+                        <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-100 flex flex-col justify-center">
+                            <div class="flex items-center mb-3">
+                                <span class="bg-emerald-200 text-emerald-800 text-xs font-bold px-2 py-1 rounded uppercase">Side B: Competitor</span>
+                            </div>
+                            <p class="text-lg font-serif italic text-emerald-900" id="quote-competitor">
+                                "We just had our best quarter ever in the same market."
+                            </p>
+                            <div class="mt-4 flex items-baseline">
+                                <span class="text-3xl font-bold text-emerald-700" id="stat-competitor">+5%</span>
+                                <span class="ml-2 text-sm text-emerald-600 font-medium">Revenue Growth</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
+                        <p id="narrative-explanation" class="text-sm text-slate-600">
+                            <!-- Explanation injected here -->
+                        </p>
                     </div>
                 </div>
             </div>
@@ -286,7 +333,16 @@
                             <div class="flex items-center justify-between p-2 bg-blue-50 rounded border border-blue-100">
                                 <label class="flex items-center space-x-3 cursor-pointer">
                                     <input type="checkbox" id="check-depreciation" onchange="updateEbitdaChart()" class="h-4 w-4 text-blue-600 rounded border-stone-300">
-                                    <span class="text-slate-700 font-medium">Depreciation</span>
+                                    <span class="text-slate-700 font-medium flex items-center">
+                                        Depreciation 
+                                        <div class="group relative ml-2 tooltip-trigger">
+                                            <span class="cursor-help text-amber-500 text-lg">&#129463;</span> <!-- Tooth icon -->
+                                            <div class="tooltip-content hidden absolute z-10 w-64 p-3 bg-slate-800 text-white text-xs rounded-lg shadow-xl -mt-20 ml-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                <strong>The Tooth Fairy Rule:</strong><br>
+                                                Warren Buffett asks: "Does management think the Tooth Fairy pays for capital expenditures?" Equipment wears out and costs real cash to replace.
+                                            </div>
+                                        </div>
+                                    </span>
                                 </label>
                                 <span class="text-xs font-mono text-slate-500">+$2.5M</span>
                             </div>
@@ -575,20 +631,27 @@
                     <!-- Interactive Tool: Burn Rate Checker -->
                     <div class="bg-violet-50 p-6 rounded-xl border border-violet-100">
                         <h3 class="font-bold text-lg text-violet-900 mb-4">"Good Burn" Calculator</h3>
-                        <div class="space-y-3">
+                        <div class="space-y-4">
                             <div>
                                 <label class="text-xs font-bold text-slate-500 uppercase">Sales & Marketing Growth</label>
-                                <input type="range" id="sm-growth" min="0" max="100" value="20" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-                                <span id="sm-val" class="text-sm font-mono text-slate-700">20%</span>
+                                <div class="flex items-center space-x-3">
+                                    <input type="range" id="sm-growth" min="0" max="100" value="20" class="flex-grow h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                    <span id="sm-val" class="text-sm font-mono text-slate-700 w-8">20%</span>
+                                </div>
                             </div>
                             <div>
                                 <label class="text-xs font-bold text-slate-500 uppercase">Revenue Growth</label>
-                                <input type="range" id="rev-growth" min="0" max="100" value="30" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-                                <span id="rev-val" class="text-sm font-mono text-slate-700">30%</span>
+                                <div class="flex items-center space-x-3">
+                                    <input type="range" id="rev-growth" min="0" max="100" value="30" class="flex-grow h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                    <span id="rev-val" class="text-sm font-mono text-slate-700 w-8">30%</span>
+                                </div>
                             </div>
-                            <div class="pt-4 border-t border-violet-200">
-                                <div id="burn-verdict" class="text-xl font-bold text-emerald-600">Operating Leverage!</div>
-                                <p id="burn-desc" class="text-xs text-slate-600 mt-1">Revenue is growing faster than spending. The product is selling itself (Viral/Network Effects).</p>
+                            <div class="pt-4 border-t border-violet-200 flex items-center space-x-3">
+                                <div id="burn-icon" class="text-4xl">✅</div>
+                                <div>
+                                    <div id="burn-verdict" class="text-xl font-bold text-emerald-600">Operating Leverage</div>
+                                    <p id="burn-desc" class="text-xs text-slate-600 mt-1">Revenue growing faster than spend. Scalable!</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -941,35 +1004,43 @@
         const narrativeScenarios = {
             headwinds: {
                 quote: "Revenue is down 10% this quarter due to severe market headwinds affecting the entire sector.",
-                companyData: -10,
-                competitorData: 5,
-                verdict: "FAIL",
+                companyData: "-10%",
+                competitorQuote: "We just had our best quarter ever in the same market.",
+                competitorData: "+5%",
+                verdict: "LYING",
                 verdictColor: "text-red-600",
-                explanation: "Your competitor GREW by 5% in the same market. The 'headwind' is actually an execution problem."
+                explanation: "Your competitor GREW by 5% in the same market. The 'headwind' is actually an execution problem.",
+                isHonest: false
             },
             weather: {
                 quote: "Our regional sales dropped 8% because the hurricane closed stores for two weeks.",
-                companyData: -8,
-                competitorData: -7,
-                verdict: "PASS",
+                companyData: "-8%",
+                competitorQuote: "Regional sales were impacted significantly due to store closures from the hurricane.",
+                competitorData: "-7%",
+                verdict: "HONEST",
                 verdictColor: "text-emerald-600",
-                explanation: "The competitor also dropped significantly. The external excuse (weather) checks out."
+                explanation: "The competitor also dropped significantly. The external excuse (weather) checks out.",
+                isHonest: true
             },
             supply: {
                 quote: "We missed targets by 5% because we couldn't get parts from overseas.",
-                companyData: -5,
-                competitorData: 12,
+                companyData: "-5%",
+                competitorQuote: "We secured alternative suppliers early and met all demand.",
+                competitorData: "+12%",
                 verdict: "FAIL",
                 verdictColor: "text-red-600",
-                explanation: "Your competitor grew 12%. They clearly managed their supply chain better than you did."
+                explanation: "Your competitor grew 12%. They clearly managed their supply chain better than you did.",
+                isHonest: false
             },
             execution: {
                 quote: "We messed up our product launch and lost share. We are fixing it.",
-                companyData: -15,
-                competitorData: 10,
+                companyData: "-15%",
+                competitorQuote: "Our new product launch was a massive success, capturing significant share.",
+                competitorData: "+10%",
                 verdict: "HONEST",
                 verdictColor: "text-blue-600",
-                explanation: "They admitted the failure despite the competitor growing. This management is being transparent."
+                explanation: "They admitted the failure despite the competitor growing. This management is being transparent.",
+                isHonest: true
             }
         };
 
@@ -977,59 +1048,36 @@
             const select = document.getElementById('scenario-select');
             const scenario = narrativeScenarios[select.value];
             
-            // Update Text
-            document.getElementById('narrative-quote').innerText = `"${scenario.quote}"`;
-            const verdictEl = document.getElementById('narrative-verdict-text');
-            verdictEl.innerText = scenario.verdict;
-            verdictEl.className = `text-2xl font-bold ${scenario.verdictColor}`;
-            document.getElementById('narrative-verdict-explanation').innerText = scenario.explanation;
+            // Populate Side A (Company)
+            document.getElementById('quote-company').innerText = `"${scenario.quote}"`;
+            document.getElementById('stat-company').innerText = scenario.companyData;
+            document.getElementById('stat-company').className = `text-3xl font-bold ${scenario.companyData.includes('-') ? 'text-red-700' : 'text-emerald-700'}`;
+
+            // Populate Side B (Competitor)
+            document.getElementById('quote-competitor').innerText = `"${scenario.competitorQuote}"`;
+            document.getElementById('stat-competitor').innerText = scenario.competitorData;
+            document.getElementById('stat-competitor').className = `text-3xl font-bold ${scenario.competitorData.includes('-') ? 'text-red-700' : 'text-emerald-700'}`;
+
+            // Update Verdict Stamp
+            const stamp = document.getElementById('narrative-stamp');
+            stamp.innerText = scenario.verdict;
             
-            // Update Chart
-            const ctx = document.getElementById('narrativeChart').getContext('2d');
-            
-            if (narrativeChartInstance) {
-                narrativeChartInstance.destroy();
+            // Stamp styling based on result
+            let stampColorClass = "";
+            if (scenario.verdict === "LYING" || scenario.verdict === "FAIL") {
+                stampColorClass = "text-red-600 border-red-600";
+            } else if (scenario.verdict === "HONEST") {
+                stampColorClass = "text-emerald-600 border-emerald-600";
+            } else {
+                stampColorClass = "text-blue-600 border-blue-600";
             }
             
-            narrativeChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Our Company', 'Competitor'],
-                    datasets: [{
-                        label: 'Revenue Growth (%)',
-                        data: [scenario.companyData, scenario.competitorData],
-                        backgroundColor: [
-                            scenario.companyData < 0 ? '#ef4444' : '#10b981', // Red if neg, Green if pos
-                            scenario.competitorData < 0 ? '#f87171' : '#34d399'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.raw + '%';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#e7e5e4' },
-                            title: { display: true, text: 'Growth %' }
-                        },
-                        x: {
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
+            stamp.className = `stamp-text text-3xl font-bold ${stampColorClass} stamp-animate`;
+            stamp.parentElement.classList.remove('hidden'); // Ensure parent is visible
+            stamp.classList.remove('hidden');
+
+            // Explanation
+            document.getElementById('narrative-explanation').innerText = scenario.explanation;
         }
 
         // --- 4. EBITDA LAB LOGIC ---
@@ -1148,6 +1196,7 @@
         const revVal = document.getElementById('rev-val');
         const burnVerdict = document.getElementById('burn-verdict');
         const burnDesc = document.getElementById('burn-desc');
+        const burnIcon = document.getElementById('burn-icon');
 
         function updateBurnCalc() {
             const sm = parseInt(smSlider.value);
@@ -1157,17 +1206,20 @@
             revVal.innerText = rev + '%';
 
             if (rev > sm) {
-                burnVerdict.innerText = "Operating Leverage (Good Burn)";
+                burnVerdict.innerText = "Operating Leverage (Scalable)";
                 burnVerdict.className = "text-xl font-bold text-emerald-600";
                 burnDesc.innerText = "Revenue is growing faster than spending. The product is catching on!";
+                burnIcon.innerText = "✅";
             } else if (rev === sm) {
                 burnVerdict.innerText = "Neutral Scale";
                 burnVerdict.className = "text-xl font-bold text-amber-600";
                 burnDesc.innerText = "Spending efficiently, but not yet seeing exponential returns.";
+                burnIcon.innerText = "⚖️";
             } else {
-                burnVerdict.innerText = "Cash Incinerator (Bad Burn)";
+                burnVerdict.innerText = "Buying Revenue (Unsustainable)";
                 burnVerdict.className = "text-xl font-bold text-red-600";
                 burnDesc.innerText = "You are spending huge money on ads but not getting enough growth back. Danger!";
+                burnIcon.innerText = "❌";
             }
         }
 
