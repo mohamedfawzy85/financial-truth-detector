@@ -750,11 +750,6 @@
                     <button type="submit" class="w-full bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors font-semibold shadow-md">
                         Send Message
                     </button>
-
-                    <div class="pt-6 border-t border-stone-100 text-center">
-                        <p class="text-sm text-slate-500">Or email me directly at:</p>
-                        <a href="mailto:mohamed.fawzy-eltanany@outlook.com" class="text-blue-600 hover:underline font-medium text-lg">mohamed.fawzy-eltanany@outlook.com</a>
-                    </div>
                 </form>
             </div>
         </section>
@@ -764,7 +759,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-stone-200 mt-12 py-8">
         <div class="max-w-7xl mx-auto px-4 text-center text-slate-400 text-sm">
-            <p>&copy; 2026 Financial Truth Detector. Created by "Mo Eltanany".</p>
+            <p>&copy; 2026 Financial Truth Detector. Created by Mo Eltanany.</p>
             <p class="mt-1">Based on "Financial Metrics & Reporting" Study Guide.</p>
         </div>
     </footer>
@@ -797,24 +792,7 @@
             menu.classList.toggle('hidden');
         }
 
-        // --- 2. CONTACT FORM LOGIC (MAILTO FALLBACK) ---
-        function sendFeedback() {
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
-            
-            if (!email || !message) {
-                alert("Please fill in both fields.");
-                return;
-            }
-
-            const subject = "Financial Truth Detector Feedback";
-            const body = `From: ${email}%0D%0A%0D%0A${message}`;
-            
-            // Open default mail client
-            window.location.href = `mailto:mohamed.fawzy-eltanany@outlook.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        }
-
-        // --- 3. NARRATIVE TEST LOGIC ---
+        // --- 2. NARRATIVE TEST LOGIC ---
         let narrativeChartInstance = null;
         
         const narrativeScenarios = {
@@ -1027,5 +1005,3 @@
     </script>
 </body>
 </html>
-
-
