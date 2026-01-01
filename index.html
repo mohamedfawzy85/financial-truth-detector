@@ -20,22 +20,22 @@
     -->
 
     <!-- Application Structure Plan:
-         1. Dashboard/Home: Introduction to the core conflict (GAAP vs. Non-GAAP). Simple comparison cards.
-         2. The Narrative Test (Interactive Tool): Users select management excuses and see mock competitor data to determine if they are lying.
-         3. The EBITDA Lab (Simulation): Users toggle "add-backs" to see how a Loss turns into a Profit, visualizing the "Adjusted" distortion.
-         4. Red Flag Scanner (Quiz/Checklist): Interactive verification of specific terminology (SBC, Restructuring).
-         5. Methodology: This structure moves from concept (Home) to application (Test/Lab) to synthesis (Scanner).
+         1. Dashboard/Home: Introduction to the core conflict.
+         2. The Narrative Test: Interactive comparison tool.
+         3. The EBITDA Lab: Interactive profit simulation.
+         4. Red Flag Scanner: Interactive flashcards.
+         5. Study Guide: Textual reference with accordion Q&A.
     -->
 
     <!-- Visualization & Content Choices:
-         1. Narrative Test: Bar Chart (Chart.js) comparing "Our Co" vs "Competitor". Interaction: Dropdown selection of scenarios. Rationale: Best way to visualize the "gap" in performance.
-         2. EBITDA Lab: Stacked Bar/Progress Chart (Chart.js). Interaction: Checkboxes to add back expenses. Rationale: Visually demonstrates how the "profit" bar grows artificially.
-         3. Red Flags: Interactive Grid with CSS hover states/click reveals. No Chart needed.
-         4. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. Standard HTML/CSS shapes and Unicode used for icons.
+         1. Charts: Chart.js for Narrative and EBITDA.
+         2. Icons: Unicode characters (no SVG).
+         3. Interactions: Vanilla JS router and DOM manipulation.
+         4. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
     -->
 
     <style>
-        /* Custom Chart Container Styles as per requirements */
+        /* Custom Chart Container Styles */
         .chart-container {
             position: relative;
             width: 100%;
@@ -52,7 +52,7 @@
             }
         }
 
-        /* Custom scrollbar for cleaner look */
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -77,6 +77,22 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
+
+        /* Perspective classes for flip cards */
+        .perspective { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .card-flipped { transform: rotateY(180deg); }
+        
+        /* Animation utility */
+        .fade-in-section {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="bg-stone-50 text-slate-800 font-sans leading-relaxed selection:bg-amber-100 selection:text-amber-900">
@@ -90,11 +106,13 @@
                         <span class="text-blue-900">Fin</span>Truth<span class="text-amber-600">Detector</span>
                     </span>
                 </div>
+                <!-- Desktop Menu -->
                 <div class="hidden sm:flex space-x-8 items-center">
                     <button onclick="router('home')" id="nav-home" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors active-nav">Overview</button>
                     <button onclick="router('narrative')" id="nav-narrative" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Narrative Test</button>
                     <button onclick="router('ebitda')" id="nav-ebitda" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">EBITDA Lab</button>
                     <button onclick="router('redflags')" id="nav-redflags" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Red Flags</button>
+                    <button onclick="router('guide')" id="nav-guide" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Study Guide</button>
                 </div>
                 <!-- Mobile menu button -->
                 <div class="flex items-center sm:hidden">
@@ -105,12 +123,13 @@
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden sm:hidden bg-white border-b border-stone-200">
+        <div id="mobile-menu" class="hidden sm:hidden bg-white border-b border-stone-200 shadow-lg absolute w-full z-50">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <button onclick="router('home'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Overview</button>
                 <button onclick="router('narrative'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Narrative Test</button>
                 <button onclick="router('ebitda'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">EBITDA Lab</button>
                 <button onclick="router('redflags'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Red Flags</button>
+                <button onclick="router('guide'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Study Guide</button>
             </div>
         </div>
     </nav>
@@ -170,9 +189,14 @@
             <div class="bg-stone-100 rounded-xl p-6 text-center">
                 <h3 class="text-xl font-bold text-slate-800 mb-2">Ready to investigate?</h3>
                 <p class="text-slate-600 mb-6">Use the tools above or click below to start testing management's stories.</p>
-                <button onclick="router('narrative')" class="bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors font-semibold shadow-md">
-                    Start the Narrative Test &rarr;
-                </button>
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button onclick="router('narrative')" class="bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors font-semibold shadow-md inline-block">
+                        Start Narrative Test
+                    </button>
+                     <button onclick="router('guide')" class="bg-white text-blue-900 border border-blue-900 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors font-semibold shadow-sm inline-block">
+                        Read Study Guide
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -424,20 +448,185 @@
                 </div>
             </div>
             
-            <style>
-                .perspective { perspective: 1000px; }
-                .transform-style-3d { transform-style: preserve-3d; }
-                .backface-hidden { backface-visibility: hidden; }
-                .rotate-y-180 { transform: rotateY(180deg); }
-                .card-flipped { transform: rotateY(180deg); }
-            </style>
-            
             <script>
                 function flipCard(el) {
                     const inner = el.querySelector('.card-inner');
                     inner.classList.toggle('card-flipped');
                 }
             </script>
+        </section>
+
+        <!-- VIEW: STUDY GUIDE (NEW SECTION) -->
+        <section id="view-guide" class="hidden fade-in-section">
+            <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-stone-200">
+                
+                <div class="border-b border-stone-200 pb-6 mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900">Study Guide: Financial Metrics & Reporting</h2>
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Finance & Accounting</span>
+                        <span class="bg-stone-100 text-stone-800 text-xs font-semibold px-2.5 py-0.5 rounded">GAAP vs Non-GAAP</span>
+                        <span class="bg-stone-100 text-stone-800 text-xs font-semibold px-2.5 py-0.5 rounded">EBITDA</span>
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    
+                    <!-- Summary -->
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Summary</h3>
+                        <p class="text-slate-700 leading-relaxed">This guide covers the critical distinctions between standard financial reporting (<strong>GAAP</strong>) and management-defined metrics (<strong>Non-GAAP</strong>). It focuses on how to analyze a company's performance beyond the headline numbers, specifically by using the <strong>Narrative Test</strong> to verify management's explanations and by scrutinizing <strong>Adjusted EBITDA</strong> for misleading "add-backs." The goal is to separate the "cold hard truth" of regulated accounting from the potentially "photoshopped" version presented by management.</p>
+                    </div>
+
+                    <hr class="border-stone-200">
+
+                    <!-- Key Concepts -->
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-4">Key Concepts</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-stone-50 p-4 rounded-lg border-l-4 border-blue-900">
+                                <h4 class="font-bold text-blue-900 mb-2">1. The Two Versions of Profit</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm">
+                                    <li><strong>GAAP (The "Cold Hard Truth"):</strong> The standardized, legally required method for reporting income. It represents the money actually left over after all obligations are met. It is comparable to a bank officer analyzing your finances.</li>
+                                    <li><strong>Non-GAAP (The "Story"):</strong> Optional metrics where management strips out costs they deem "irrelevant" to core operations. While useful for context, these figures are subjective and often higher than GAAP earnings.</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-stone-50 p-4 rounded-lg border-l-4 border-amber-500">
+                                <h4 class="font-bold text-amber-700 mb-2">2. The Narrative Test</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm">
+                                    <li><strong>Purpose:</strong> To determine if management is being honest about poor performance.</li>
+                                    <li><strong>Method:</strong> Compare management's excuse (e.g., "The market is bad") with a direct competitor's results for the same period.</li>
+                                    <li><strong>The Verdict:</strong> If the competitor is growing while management blames the market, the excuse fails the test.</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-stone-50 p-4 rounded-lg border-l-4 border-slate-400">
+                                <h4 class="font-bold text-slate-800 mb-2">3. EBITDA Fundamentals</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm">
+                                    <li><strong>Definition:</strong> Earnings Before Interest, Taxes, Depreciation, and Amortization.</li>
+                                    <li><strong>Use Case:</strong> Ideal for comparing the <em>operating</em> performance of companies with different capital structures (debt levels) or tax jurisdictions.</li>
+                                    <li><strong>Weakness (The "Tooth Fairy" Critique):</strong> By ignoring depreciation, it assumes equipment never breaks or needs replacing, which overstates cash flow availability.</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-stone-50 p-4 rounded-lg border-l-4 border-red-600">
+                                <h4 class="font-bold text-red-700 mb-2">4. Adjusted EBITDA & Red Flags</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm">
+                                    <li><strong>The Concept:</strong> Companies add <em>more</em> expenses back to EBITDA to show "normalized" earnings.</li>
+                                    <li><strong>The Danger:</strong> It acts like a "photoshopped" image of the company's finances.</li>
+                                    <li><strong>Major Red Flags:</strong>
+                                        <ul class="list-[circle] pl-5 mt-2 space-y-1">
+                                            <li><strong>Recurring "One-Time" Costs:</strong> If a company has "restructuring costs" every year, it is a standard operating expense, not an anomaly.</li>
+                                            <li><strong>Stock-Based Compensation (SBC):</strong> Often added back because it isn't cash, but it causes <strong>dilution</strong>, making it a very real cost to shareholders.</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-stone-200">
+
+                    <!-- Vocabulary -->
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-4">Vocabulary List</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="p-3 border border-stone-200 rounded">
+                                <span class="block font-bold text-slate-900">GAAP</span>
+                                <span class="text-slate-600">Generally Accepted Accounting Principles. The strict, standardized rulebook all public companies must follow.</span>
+                            </div>
+                            <div class="p-3 border border-stone-200 rounded">
+                                <span class="block font-bold text-slate-900">Non-GAAP Measures</span>
+                                <span class="text-slate-600">Custom financial metrics where management excludes certain costs to present their version of the "core" business performance.</span>
+                            </div>
+                            <div class="p-3 border border-stone-200 rounded">
+                                <span class="block font-bold text-slate-900">MD&A</span>
+                                <span class="text-slate-600">Management’s Discussion and Analysis. The section of a financial report where management explains the "Why" behind the numbers.</span>
+                            </div>
+                            <div class="p-3 border border-stone-200 rounded">
+                                <span class="block font-bold text-slate-900">EBITDA</span>
+                                <span class="text-slate-600">Earnings Before Interest, Taxes, Depreciation, and Amortization. A measure of operating profitability excluding financing/tax/accounting decisions.</span>
+                            </div>
+                            <div class="p-3 border border-stone-200 rounded">
+                                <span class="block font-bold text-slate-900">Adjusted EBITDA</span>
+                                <span class="text-slate-600">A variation of EBITDA where management adds back additional expenses (like legal settlements or stock compensation) to make profit appear higher.</span>
+                            </div>
+                            <div class="p-3 border border-stone-200 rounded">
+                                <span class="block font-bold text-slate-900">Stock-Based Compensation (SBC)</span>
+                                <span class="text-slate-600">Payment to employees in the form of equity. Often excluded from Adjusted EBITDA, though it permanently dilutes existing shareholders.</span>
+                            </div>
+                            <div class="p-3 border border-stone-200 rounded">
+                                <span class="block font-bold text-slate-900">Dilution</span>
+                                <span class="text-slate-600">The reduction in the ownership percentage of existing shareholders caused by the issuance of new shares.</span>
+                            </div>
+                            <div class="p-3 border border-stone-200 rounded">
+                                <span class="block font-bold text-slate-900">CapEx</span>
+                                <span class="text-slate-600">Capital Expenditures. Funds used by a company to acquire, upgrade, and maintain physical assets. This cost is ignored by EBITDA.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-stone-200">
+
+                    <!-- Key Questions -->
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-4">Key Questions for Review</h3>
+                        <div class="space-y-4">
+                            <details class="group bg-white border border-stone-200 rounded-lg open:ring-1 open:ring-blue-100">
+                                <summary class="flex items-center justify-between p-4 cursor-pointer font-medium text-slate-800 group-hover:bg-stone-50">
+                                    1. Why is "Stock-Based Compensation" considered a real cost to shareholders, even if no cash leaves the bank account?
+                                    <span class="ml-2 text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                                </summary>
+                                <div class="px-4 pb-4 text-slate-600 border-t border-stone-100 pt-3">
+                                    It increases the total number of shares, diluting the ownership stake of every existing shareholder.
+                                </div>
+                            </details>
+
+                            <details class="group bg-white border border-stone-200 rounded-lg open:ring-1 open:ring-blue-100">
+                                <summary class="flex items-center justify-between p-4 cursor-pointer font-medium text-slate-800 group-hover:bg-stone-50">
+                                    2. How can you use a competitor's earnings report to fact-check a company's MD&A?
+                                    <span class="ml-2 text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                                </summary>
+                                <div class="px-4 pb-4 text-slate-600 border-t border-stone-100 pt-3">
+                                    If Company A blames "market headwinds" for a loss, but Competitor B reports record profits in the same market, Company A's management is likely masking their own execution failures.
+                                </div>
+                            </details>
+
+                            <details class="group bg-white border border-stone-200 rounded-lg open:ring-1 open:ring-blue-100">
+                                <summary class="flex items-center justify-between p-4 cursor-pointer font-medium text-slate-800 group-hover:bg-stone-50">
+                                    3. Why did Warren Buffett refer to the exclusion of depreciation as believing in the "Tooth Fairy"?
+                                    <span class="ml-2 text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                                </summary>
+                                <div class="px-4 pb-4 text-slate-600 border-t border-stone-100 pt-3">
+                                    Because machinery and assets eventually wear out and cost real money to replace (CapEx). Ignoring depreciation pretends these costs don't exist.
+                                </div>
+                            </details>
+
+                            <details class="group bg-white border border-stone-200 rounded-lg open:ring-1 open:ring-blue-100">
+                                <summary class="flex items-center justify-between p-4 cursor-pointer font-medium text-slate-800 group-hover:bg-stone-50">
+                                    4. What is the "Bank Officer" analogy for GAAP vs. Non-GAAP?
+                                    <span class="ml-2 text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                                </summary>
+                                <div class="px-4 pb-4 text-slate-600 border-t border-stone-100 pt-3">
+                                    GAAP is the strict bank officer who only cares about the actual money left after bills. Non-GAAP is explaining your finances to a friend, where you might justify or ignore certain bad spending habits.
+                                </div>
+                            </details>
+
+                            <details class="group bg-white border border-stone-200 rounded-lg open:ring-1 open:ring-blue-100">
+                                <summary class="flex items-center justify-between p-4 cursor-pointer font-medium text-slate-800 group-hover:bg-stone-50">
+                                    5. When is it acceptable for a company to exclude store closure costs from their earnings?
+                                    <span class="ml-2 text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                                </summary>
+                                <div class="px-4 pb-4 text-slate-600 border-t border-stone-100 pt-3">
+                                    When the closures are a rare, non-recurring event. This helps investors see how the remaining, healthy business is performing.
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </section>
 
     </main>
@@ -461,7 +650,8 @@
             
             // Show target
             document.getElementById(`view-${viewId}`).classList.remove('hidden');
-            document.getElementById(`nav-${viewId}`).classList.add('active-nav');
+            const navBtn = document.getElementById(`nav-${viewId}`);
+            if (navBtn) navBtn.classList.add('active-nav');
             
             // Initialize/Refresh visuals if needed
             if (viewId === 'narrative') {
