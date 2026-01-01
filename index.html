@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Truth Detector</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chosen Palette: Warm Professional -->
+    <!-- Colors: 
+         Background: Stone-50 (Warm Neutral)
+         Primary Text: Slate-800
+         GAAP/Official: Blue-900 (Navy)
+         Non-GAAP/Story: Amber-600
+         Danger/Red Flag: Red-700
+         Safe/Go: Emerald-700
+    -->
+
+    <!-- Application Structure Plan:
+         1. Dashboard/Home: Introduction to the core conflict (GAAP vs. Non-GAAP). Simple comparison cards.
+         2. The Narrative Test (Interactive Tool): Users select management excuses and see mock competitor data to determine if they are lying.
+         3. The EBITDA Lab (Simulation): Users toggle "add-backs" to see how a Loss turns into a Profit, visualizing the "Adjusted" distortion.
+         4. Red Flag Scanner (Quiz/Checklist): Interactive verification of specific terminology (SBC, Restructuring).
+         5. Methodology: This structure moves from concept (Home) to application (Test/Lab) to synthesis (Scanner).
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Narrative Test: Bar Chart (Chart.js) comparing "Our Co" vs "Competitor". Interaction: Dropdown selection of scenarios. Rationale: Best way to visualize the "gap" in performance.
+         2. EBITDA Lab: Stacked Bar/Progress Chart (Chart.js). Interaction: Checkboxes to add back expenses. Rationale: Visually demonstrates how the "profit" bar grows artificially.
+         3. Red Flags: Interactive Grid with CSS hover states/click reveals. No Chart needed.
+         4. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. Standard HTML/CSS shapes and Unicode used for icons.
+    -->
+
+    <style>
+        /* Custom Chart Container Styles as per requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Mobile base */
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px; /* Tablet/Desktop */
+            }
+        }
+
+        /* Custom scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f5f4; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d6d3d1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a29e; 
+        }
+
+        .active-nav {
+            border-bottom: 2px solid #1e3a8a; /* blue-900 */
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-800 font-sans leading-relaxed selection:bg-amber-100 selection:text-amber-900">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-stone-50/95 backdrop-blur border-b border-stone-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold tracking-tight text-slate-900">
+                        <span class="text-blue-900">Fin</span>Truth<span class="text-amber-600">Detector</span>
+                    </span>
+                </div>
+                <div class="hidden sm:flex space-x-8 items-center">
+                    <button onclick="router('home')" id="nav-home" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors active-nav">Overview</button>
+                    <button onclick="router('narrative')" id="nav-narrative" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Narrative Test</button>
+                    <button onclick="router('ebitda')" id="nav-ebitda" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">EBITDA Lab</button>
+                    <button onclick="router('redflags')" id="nav-redflags" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Red Flags</button>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="flex items-center sm:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-slate-500 hover:text-slate-700 focus:outline-none">
+                        <span class="text-2xl">&#9776;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden sm:hidden bg-white border-b border-stone-200">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <button onclick="router('home'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Overview</button>
+                <button onclick="router('narrative'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Narrative Test</button>
+                <button onclick="router('ebitda'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">EBITDA Lab</button>
+                <button onclick="router('redflags'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Red Flags</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- VIEW: HOME / OVERVIEW -->
+        <section id="view-home" class="fade-in-section">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-slate-900 mb-4">Decoding Financial Reports</h1>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    Companies tell two stories: the legal one (**GAAP**) and the marketing one (**Non-GAAP**). 
+                    Learn to spot the difference, verify excuses, and find the truth behind the numbers.
+                </p>
+            </div>
+
+            <!-- Concept Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <!-- GAAP Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-8 card-hover transition-all duration-300 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <div class="relative z-10">
+                        <h2 class="text-2xl font-bold text-blue-900 mb-4 flex items-center">
+                            <span class="text-3xl mr-3">&#127970;</span> GAAP
+                        </h2>
+                        <h3 class="text-sm uppercase tracking-wide text-slate-500 font-semibold mb-2">The "Bank Officer" View</h3>
+                        <p class="text-slate-600 mb-4">
+                            Generally Accepted Accounting Principles. The strict, standardized rulebook. 
+                            It shows the "Cold Hard Truth"—the actual money left after all obligations are met.
+                        </p>
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <p class="text-blue-800 text-sm font-medium">"I don't care about your excuses. How much cash is in the account?"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Non-GAAP Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-8 card-hover transition-all duration-300 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <div class="relative z-10">
+                        <h2 class="text-2xl font-bold text-amber-600 mb-4 flex items-center">
+                            <span class="text-3xl mr-3">&#127867;</span> Non-GAAP
+                        </h2>
+                        <h3 class="text-sm uppercase tracking-wide text-slate-500 font-semibold mb-2">The "Friend at the Bar" View</h3>
+                        <p class="text-slate-600 mb-4">
+                            Management's custom metrics. They exclude "bad" costs to show "Core Earnings." 
+                            Useful for context, but often used to hide poor performance.
+                        </p>
+                        <div class="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                            <p class="text-amber-800 text-sm font-medium">"Ignore that loss, it was a one-time thing! I'm actually doing great."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-stone-100 rounded-xl p-6 text-center">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Ready to investigate?</h3>
+                <p class="text-slate-600 mb-6">Use the tools above or click below to start testing management's stories.</p>
+                <button onclick="router('narrative')" class="bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors font-semibold shadow-md">
+                    Start the Narrative Test &rarr;
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW: NARRATIVE TEST -->
+        <section id="view-narrative" class="hidden fade-in-section">
+            <div class="mb-8 border-b border-stone-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">The Narrative Test</h2>
+                <p class="text-slate-600 mt-2">
+                    Management often blames external factors ("Market Headwinds") for bad results. 
+                    Your job: **Trust but Verify**. Compare their excuse with a competitor's performance.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Controls -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                        <label for="scenario-select" class="block text-sm font-medium text-slate-700 mb-2">Select Management's Excuse:</label>
+                        <select id="scenario-select" onchange="updateNarrativeTest()" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-stone-50 border p-2">
+                            <option value="headwinds">"Strong Market Headwinds"</option>
+                            <option value="weather">"Extreme Weather Impact"</option>
+                            <option value="supply">"Supply Chain Disruption"</option>
+                            <option value="execution">"Internal Execution Issues" (Rare!)</option>
+                        </select>
+                        
+                        <div id="narrative-quote" class="mt-6 italic text-slate-600 border-l-4 border-amber-400 pl-4 py-2 bg-stone-50">
+                            <!-- Dynamic Quote injected here -->
+                        </div>
+                    </div>
+
+                    <div id="narrative-verdict-card" class="bg-stone-100 p-6 rounded-xl border border-stone-200 transition-all duration-500">
+                        <h3 class="text-lg font-bold mb-2">Verdict</h3>
+                        <div id="narrative-verdict-text" class="text-2xl font-bold text-slate-800">
+                            <!-- Dynamic Verdict -->
+                        </div>
+                        <p id="narrative-verdict-explanation" class="text-sm mt-2 text-slate-600">
+                            <!-- Explanation -->
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Visualization -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 h-full flex flex-col justify-center">
+                        <h3 class="text-center font-semibold text-slate-500 mb-4 uppercase tracking-wider text-sm">Revenue Growth Comparison (Same Period)</h3>
+                        <div class="chart-container">
+                            <canvas id="narrativeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: EBITDA LAB -->
+        <section id="view-ebitda" class="hidden fade-in-section">
+            <div class="mb-8 border-b border-stone-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">The EBITDA Lab</h2>
+                <p class="text-slate-600 mt-2">
+                    See how **Adjusted EBITDA** is calculated. Start with the "Cold Hard Truth" (Net Income) and add back expenses to create a "Photoshopped" profit number.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Controls -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                        <h3 class="font-bold text-lg text-slate-800 mb-4">Build Your Adjustments</h3>
+                        <p class="text-sm text-slate-500 mb-4">Check the boxes to "add back" these costs:</p>
+                        
+                        <div class="space-y-3">
+                            <!-- Standard EBITDA -->
+                            <div class="flex items-center justify-between p-2 bg-blue-50 rounded border border-blue-100">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="check-interest" checked disabled class="h-4 w-4 text-blue-600 rounded border-stone-300">
+                                    <span class="text-slate-700 font-medium">Interest & Taxes</span>
+                                </label>
+                                <span class="text-xs font-mono text-slate-500">+$3.0M</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-blue-50 rounded border border-blue-100">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="check-depreciation" onchange="updateEbitdaChart()" class="h-4 w-4 text-blue-600 rounded border-stone-300">
+                                    <span class="text-slate-700 font-medium">Depreciation</span>
+                                </label>
+                                <span class="text-xs font-mono text-slate-500">+$2.5M</span>
+                            </div>
+                            
+                            <!-- Adjusted EBITDA (Sketchy stuff) -->
+                            <div class="border-t border-stone-200 my-2 pt-2"></div>
+                            <p class="text-xs font-bold text-amber-600 uppercase mb-2">"Adjusted" Add-Backs (Red Flags?)</p>
+
+                            <div class="flex items-center justify-between p-2 hover:bg-amber-50 rounded transition-colors">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="check-sbc" onchange="updateEbitdaChart()" class="h-4 w-4 text-amber-600 rounded border-stone-300">
+                                    <div>
+                                        <span class="text-slate-700 font-medium block">Stock-Based Comp</span>
+                                        <span class="text-xs text-slate-500 block">Dilutes shareholders</span>
+                                    </div>
+                                </label>
+                                <span class="text-xs font-mono text-slate-500">+$4.0M</span>
+                            </div>
+
+                            <div class="flex items-center justify-between p-2 hover:bg-amber-50 rounded transition-colors">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="check-restructuring" onchange="updateEbitdaChart()" class="h-4 w-4 text-amber-600 rounded border-stone-300">
+                                    <div>
+                                        <span class="text-slate-700 font-medium block">Restructuring</span>
+                                        <span class="text-xs text-slate-500 block">Is it truly one-time?</span>
+                                    </div>
+                                </label>
+                                <span class="text-xs font-mono text-slate-500">+$1.5M</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Insight Box -->
+                    <div id="ebitda-insight" class="bg-stone-100 p-4 rounded-lg border border-stone-200 text-sm">
+                        <!-- Dynamic text -->
+                    </div>
+                </div>
+
+                <!-- Visualization -->
+                <div class="lg:col-span-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 h-full flex flex-col">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-semibold text-slate-500 uppercase tracking-wider text-sm">Profitability Bridge</h3>
+                            <div class="text-right">
+                                <span class="block text-xs text-slate-400">Total "Profit" Displayed</span>
+                                <span id="total-profit-display" class="text-2xl font-bold text-slate-800">$0.0M</span>
+                            </div>
+                        </div>
+                        <div class="chart-container flex-grow">
+                            <canvas id="ebitdaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: RED FLAG SCANNER -->
+        <section id="view-redflags" class="hidden fade-in-section">
+            <div class="mb-8 border-b border-stone-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">Red Flag Scanner</h2>
+                <p class="text-slate-600 mt-2">
+                    Not all "Add-backs" are created equal. Can you identify which items in the MD&A are reasonable adjustments and which are suspicious?
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Item 1 -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#9878;</span>
+                            <h3 class="text-lg font-bold text-center">Factory Fire Settlement</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-emerald-50 rounded-xl shadow-md border border-emerald-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-emerald-800 font-bold mb-2">SAFE</h3>
+                            <p class="text-sm text-center text-emerald-700">This is a true "one-time" event. It is unlikely to happen every year, so excluding it is fair.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#128200;</span>
+                            <h3 class="text-lg font-bold text-center">Stock-Based Compensation</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-red-50 rounded-xl shadow-md border border-red-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-red-800 font-bold mb-2">RED FLAG</h3>
+                            <p class="text-sm text-center text-red-700">Companies love to add this back, but it dilutes YOUR shares. It is a real cost to shareholders.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#128679;</span>
+                            <h3 class="text-lg font-bold text-center">"Restructuring" (Year 3)</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-red-50 rounded-xl shadow-md border border-red-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-red-800 font-bold mb-2">RED FLAG</h3>
+                            <p class="text-sm text-center text-red-700">If they restructure every year, it's just an operating expense. "One-time" costs shouldn't recur.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 4 -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#127981;</span>
+                            <h3 class="text-lg font-bold text-center">Depreciation</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-amber-50 rounded-xl shadow-md border border-amber-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-amber-800 font-bold mb-2">CAUTION (Tooth Fairy)</h3>
+                            <p class="text-sm text-center text-amber-700">Added back for EBITDA, but dangerous to ignore. Equipment wears out and costs cash to replace (CapEx).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 5 -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#128184;</span>
+                            <h3 class="text-lg font-bold text-center">Interest Payments</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-emerald-50 rounded-xl shadow-md border border-emerald-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-emerald-800 font-bold mb-2">STANDARD</h3>
+                            <p class="text-sm text-center text-emerald-700">Excluded in EBITDA to compare operating performance, not financing decisions.</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Item 6 -->
+                 <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#127978;</span>
+                            <h3 class="text-lg font-bold text-center">Store Closure (Rare)</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-emerald-50 rounded-xl shadow-md border border-emerald-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-emerald-800 font-bold mb-2">SAFE</h3>
+                            <p class="text-sm text-center text-emerald-700">If truly rare, removing this helps show the health of the remaining stores.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+                .perspective { perspective: 1000px; }
+                .transform-style-3d { transform-style: preserve-3d; }
+                .backface-hidden { backface-visibility: hidden; }
+                .rotate-y-180 { transform: rotateY(180deg); }
+                .card-flipped { transform: rotateY(180deg); }
+            </style>
+            
+            <script>
+                function flipCard(el) {
+                    const inner = el.querySelector('.card-inner');
+                    inner.classList.toggle('card-flipped');
+                }
+            </script>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-slate-400 text-sm">
+            <p>&copy; 2026 Financial Truth Detector. Based on "Financial Metrics & Reporting" Study Guide.</p>
+        </div>
+    </footer>
+
+    <!-- LOGIC -->
+    <script>
+        // --- 1. ROUTING & STATE ---
+        function router(viewId) {
+            // Hide all sections
+            document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
+            
+            // Remove active state from nav
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-nav'));
+            
+            // Show target
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            document.getElementById(`nav-${viewId}`).classList.add('active-nav');
+            
+            // Initialize/Refresh visuals if needed
+            if (viewId === 'narrative') {
+                updateNarrativeTest(); // Ensure chart renders
+            } else if (viewId === 'ebitda') {
+                updateEbitdaChart(); // Ensure chart renders
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- 2. NARRATIVE TEST LOGIC ---
+        let narrativeChartInstance = null;
+        
+        const narrativeScenarios = {
+            headwinds: {
+                quote: "Revenue is down 10% this quarter due to severe market headwinds affecting the entire sector.",
+                companyData: -10,
+                competitorData: 5,
+                verdict: "FAIL",
+                verdictColor: "text-red-600",
+                explanation: "Your competitor GREW by 5% in the same market. The 'headwind' is actually an execution problem."
+            },
+            weather: {
+                quote: "Our regional sales dropped 8% because the hurricane closed stores for two weeks.",
+                companyData: -8,
+                competitorData: -7,
+                verdict: "PASS",
+                verdictColor: "text-emerald-600",
+                explanation: "The competitor also dropped significantly. The external excuse (weather) checks out."
+            },
+            supply: {
+                quote: "We missed targets by 5% because we couldn't get parts from overseas.",
+                companyData: -5,
+                competitorData: 12,
+                verdict: "FAIL",
+                verdictColor: "text-red-600",
+                explanation: "Your competitor grew 12%. They clearly managed their supply chain better than you did."
+            },
+            execution: {
+                quote: "We messed up our product launch and lost share. We are fixing it.",
+                companyData: -15,
+                competitorData: 10,
+                verdict: "HONEST",
+                verdictColor: "text-blue-600",
+                explanation: "They admitted the failure despite the competitor growing. This management is being transparent."
+            }
+        };
+
+        function updateNarrativeTest() {
+            const select = document.getElementById('scenario-select');
+            const scenario = narrativeScenarios[select.value];
+            
+            // Update Text
+            document.getElementById('narrative-quote').innerText = `"${scenario.quote}"`;
+            const verdictEl = document.getElementById('narrative-verdict-text');
+            verdictEl.innerText = scenario.verdict;
+            verdictEl.className = `text-2xl font-bold ${scenario.verdictColor}`;
+            document.getElementById('narrative-verdict-explanation').innerText = scenario.explanation;
+            
+            // Update Chart
+            const ctx = document.getElementById('narrativeChart').getContext('2d');
+            
+            if (narrativeChartInstance) {
+                narrativeChartInstance.destroy();
+            }
+            
+            narrativeChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Our Company', 'Competitor'],
+                    datasets: [{
+                        label: 'Revenue Growth (%)',
+                        data: [scenario.companyData, scenario.competitorData],
+                        backgroundColor: [
+                            scenario.companyData < 0 ? '#ef4444' : '#10b981', // Red if neg, Green if pos
+                            scenario.competitorData < 0 ? '#f87171' : '#34d399'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#e7e5e4' },
+                            title: { display: true, text: 'Growth %' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 3. EBITDA LAB LOGIC ---
+        let ebitdaChartInstance = null;
+
+        function updateEbitdaChart() {
+            const hasDepreciation = document.getElementById('check-depreciation').checked;
+            const hasSBC = document.getElementById('check-sbc').checked;
+            const hasRestructuring = document.getElementById('check-restructuring').checked;
+
+            // Base Data (in Millions)
+            const netIncome = -2.0; // GAAP Loss
+            const interestTaxes = 3.0;
+            const depreciation = hasDepreciation ? 2.5 : 0;
+            const sbc = hasSBC ? 4.0 : 0;
+            const restructuring = hasRestructuring ? 1.5 : 0;
+
+            const totalProfit = netIncome + interestTaxes + depreciation + sbc + restructuring;
+            
+            // Update Text Display
+            const displayEl = document.getElementById('total-profit-display');
+            displayEl.innerText = `$${totalProfit.toFixed(1)}M`;
+            displayEl.className = `text-2xl font-bold ${totalProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`;
+            
+            // Insight Text
+            let insight = "";
+            if (!hasDepreciation && !hasSBC) {
+                insight = "Starting with a GAAP Net Loss. The company is losing money after paying bills.";
+            } else if (hasDepreciation && !hasSBC) {
+                insight = "EBITDA view. You're ignoring equipment wear-and-tear (The Tooth Fairy). Operating cash flow looks positive.";
+            } else if (hasSBC) {
+                insight = "Now entering 'Adjusted' territory. Adding back SBC makes the profit look huge, but you are paying employees with shareholder dilution!";
+            }
+            document.getElementById('ebitda-insight').innerText = insight;
+
+            // Chart Data
+            // We want a stacked bar showing the build up
+            const ctx = document.getElementById('ebitdaChart').getContext('2d');
+            
+            if (ebitdaChartInstance) {
+                ebitdaChartInstance.destroy();
+            }
+
+            ebitdaChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Profit Bridge'],
+                    datasets: [
+                        {
+                            label: 'GAAP Net Income',
+                            data: [netIncome],
+                            backgroundColor: '#1e3a8a', // Navy
+                        },
+                        {
+                            label: 'Interest & Taxes',
+                            data: [interestTaxes],
+                            backgroundColor: '#60a5fa', // Blue-400
+                        },
+                        {
+                            label: 'Depreciation',
+                            data: [depreciation],
+                            backgroundColor: '#fbbf24', // Amber-400
+                            hidden: !hasDepreciation
+                        },
+                        {
+                            label: 'Stock-Based Comp',
+                            data: [sbc],
+                            backgroundColor: '#f59e0b', // Amber-500
+                            hidden: !hasSBC
+                        },
+                        {
+                            label: 'Restructuring',
+                            data: [restructuring],
+                            backgroundColor: '#d97706', // Amber-600
+                            hidden: !hasRestructuring
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { 
+                            stacked: true,
+                            grid: { color: '#e7e5e4' },
+                            title: { display: true, text: 'Millions ($)' }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                footer: (tooltipItems) => {
+                                    let sum = 0;
+                                    tooltipItems.forEach(function(tooltipItem) {
+                                        sum += tooltipItem.raw;
+                                    });
+                                    return 'Total: $' + sum.toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize defaults on load
+        window.addEventListener('load', () => {
+            // Check if URL hash exists for direct linking
+            updateNarrativeTest();
+            updateEbitdaChart();
+        });
+
+    </script>
+</body>
+</html>
