@@ -8,6 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MathJax for formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <!-- Chosen Palette: Warm Professional -->
     <!-- Colors: 
@@ -25,13 +28,6 @@
          3. The EBITDA Lab: Interactive profit simulation.
          4. Red Flag Scanner: Interactive flashcards.
          5. Study Guide: Textual reference with accordion Q&A.
-    -->
-
-    <!-- Visualization & Content Choices:
-         1. Charts: Chart.js for Narrative and EBITDA.
-         2. Icons: Unicode characters (no SVG).
-         3. Interactions: Vanilla JS router and DOM manipulation.
-         4. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
     -->
 
     <style>
@@ -446,6 +442,92 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Item 7 (NEW): Goodwill -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#127991;</span>
+                            <h3 class="text-lg font-bold text-center">Massive Goodwill</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-amber-50 rounded-xl shadow-md border border-amber-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-amber-800 font-bold mb-2">RISK OF WRITE-DOWN</h3>
+                            <p class="text-sm text-center text-amber-700">Represents overpayment for acquisitions. If the new business fails, this value evaporates, causing huge losses.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 8 (NEW): Inventory -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#128230;</span>
+                            <h3 class="text-lg font-bold text-center">Inventory > Sales Growth</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-red-50 rounded-xl shadow-md border border-red-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-red-800 font-bold mb-2">OBSOLESCENCE TRAP</h3>
+                            <p class="text-sm text-center text-red-700">Making stuff faster than selling it. Leads to discounting, waste, and crushed margins.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 9 (NEW): OCF vs Profit -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#128201;</span>
+                            <h3 class="text-lg font-bold text-center">Profit High, Cash Flow Low</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-red-50 rounded-xl shadow-md border border-red-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-red-800 font-bold mb-2">AGGRESSIVE ACCOUNTING</h3>
+                            <p class="text-sm text-center text-red-700">Booking sales but not collecting cash. "Profit is an opinion, Cash is a fact."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 10 (NEW): CapEx Neglect -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#128736;</span>
+                            <h3 class="text-lg font-bold text-center">Plummeting CapEx</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-red-50 rounded-xl shadow-md border border-red-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-red-800 font-bold mb-2">EXPLODING ENGINE</h3>
+                            <p class="text-sm text-center text-red-700">Saving money by not maintaining assets. Like driving 100k miles without changing the oil.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 11 (NEW): FCF -->
+                <div class="group cursor-pointer perspective" onclick="flipCard(this)">
+                    <div class="relative w-full h-48 transition-transform duration-500 transform-style-3d card-inner">
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col justify-center items-center backface-hidden">
+                            <span class="text-4xl mb-4">&#128176;</span>
+                            <h3 class="text-lg font-bold text-center">Free Cash Flow (FCF)</h3>
+                            <p class="text-xs text-slate-400 mt-2">Click to Scan</p>
+                        </div>
+                        <!-- Back -->
+                        <div class="absolute w-full h-full bg-emerald-50 rounded-xl shadow-md border border-emerald-200 p-6 flex flex-col justify-center items-center backface-hidden rotate-y-180">
+                            <h3 class="text-emerald-800 font-bold mb-2">THE HOLY GRAIL</h3>
+                            <p class="text-sm text-center text-emerald-700">The actual discretionary cash left over to pay dividends, buy back stock, or pay down debt.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             
             <script>
@@ -521,6 +603,28 @@
                                             <li><strong>Stock-Based Compensation (SBC):</strong> Often added back because it isn't cash, but it causes <strong>dilution</strong>, making it a very real cost to shareholders.</li>
                                         </ul>
                                     </li>
+                                </ul>
+                            </div>
+
+                             <div class="bg-stone-50 p-4 rounded-lg border-l-4 border-orange-600">
+                                <h4 class="font-bold text-orange-700 mb-2">5. Balance Sheet Hazards</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm">
+                                    <li><strong>Goodwill (The "Overpayment" Asset):</strong> An intangible asset appearing when a company pays more than fair market value for an acquisition. 
+                                        <br><em>Risk:</em> <strong>Impairment Charge (Write-Down).</strong> If the acquired business fails, the company must "write down" the value, causing a massive, sudden expense.</li>
+                                    <li><strong>Inventory Levels (The "Stuff" Trap):</strong> Raw materials or goods waiting to be sold.
+                                        <br><em>Risk:</em> <strong>Rising Faster than Sales.</strong> Signals that management overestimated demand. Leads to obsolescence and heavy discounting to clear shelves, destroying profit margins.</li>
+                                </ul>
+                            </div>
+
+                            <!-- NEW SECTION: Cash Flow -->
+                            <div class="bg-stone-50 p-4 rounded-lg border-l-4 border-emerald-600">
+                                <h4 class="font-bold text-emerald-800 mb-2">6. The Cash Flow Statement (The Reality Check)</h4>
+                                <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm">
+                                    <li><strong>Operating Cash Flow (OCF):</strong> The "Engine." Tracks actual cash generated from selling goods/services. <br><em>Red Flag:</em> If <strong>Net Profit is High but OCF is Low</strong>, the company is "booking sales but not collecting cash" (Aggressive Accounting).</li>
+                                    <li><strong>CapEx (Capital Expenditures):</strong> The cost of staying in business (maintenance & growth). <br><em>Red Flag:</em> If revenue rises but CapEx drops, they are neglecting infrastructure ("Driving without changing the oil").</li>
+                                    <li><strong>Free Cash Flow (FCF):</strong> The "Holy Grail." <br>
+                                        <span class="font-mono bg-white px-1 rounded border border-stone-200">FCF = Operating Cash Flow - CapEx</span><br>
+                                        Represents the discretionary cash available to pay dividends, buy back stock, or pay down debt.</li>
                                 </ul>
                             </div>
                         </div>
