@@ -20,6 +20,7 @@
          Non-GAAP/Story: Amber-600
          Danger/Red Flag: Red-700
          Safe/Go: Emerald-700
+         Innovation/Growth: Violet-700 (New for this section)
     -->
 
     <style>
@@ -100,6 +101,7 @@
                     <button onclick="router('narrative')" id="nav-narrative" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Narrative Test</button>
                     <button onclick="router('ebitda')" id="nav-ebitda" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">EBITDA Lab</button>
                     <button onclick="router('redflags')" id="nav-redflags" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Red Flags</button>
+                    <button onclick="router('innovation')" id="nav-innovation" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Innovation</button>
                     <button onclick="router('guide')" id="nav-guide" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Study Guide</button>
                     <button onclick="router('contact')" id="nav-contact" class="nav-btn px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Contact</button>
                 </div>
@@ -118,6 +120,7 @@
                 <button onclick="router('narrative'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Narrative Test</button>
                 <button onclick="router('ebitda'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">EBITDA Lab</button>
                 <button onclick="router('redflags'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Red Flags</button>
+                <button onclick="router('innovation'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Innovation</button>
                 <button onclick="router('guide'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Study Guide</button>
                 <button onclick="router('contact'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-stone-100 rounded-md">Contact</button>
             </div>
@@ -183,8 +186,8 @@
                     <button onclick="router('narrative')" class="bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors font-semibold shadow-md inline-block">
                         Start Narrative Test
                     </button>
-                     <button onclick="router('guide')" class="bg-white text-blue-900 border border-blue-900 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors font-semibold shadow-sm inline-block">
-                        Read Study Guide
+                     <button onclick="router('innovation')" class="bg-white text-violet-700 border border-violet-700 px-6 py-3 rounded-lg hover:bg-violet-50 transition-colors font-semibold shadow-sm inline-block">
+                        Growth Hunter Mode
                     </button>
                 </div>
             </div>
@@ -532,6 +535,81 @@
             </script>
         </section>
 
+        <!-- VIEW: INNOVATION (NEW SECTION) -->
+        <section id="view-innovation" class="hidden fade-in-section">
+            <div class="mb-8 border-b border-stone-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">The Innovation Hunter <span class="text-violet-700 text-lg align-middle ml-2 font-medium">(Offensive Strategy)</span></h2>
+                <p class="text-slate-600 mt-2">
+                    To find the next Amazon or Tesla, you must invert the defensive logic. Look for <strong>Adaptation</strong> over Optimization.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Left Col: The Framework -->
+                <div class="space-y-6">
+                    <!-- Concept 1 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 border-l-4 border-l-violet-600">
+                        <h3 class="font-bold text-lg text-violet-800 mb-2">1. The Income Statement as Fuel</h3>
+                        <ul class="text-sm text-slate-700 space-y-2">
+                            <li><strong>R&D % of Revenue:</strong> The "Learning Rate." High and steady spending here liquidates the future for current dominance.</li>
+                            <li><strong>Gross Margin Expansion:</strong> The best sign of a "Moat." Raising prices or lowering costs while growing fast.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Interactive Tool: Burn Rate Checker -->
+                    <div class="bg-violet-50 p-6 rounded-xl border border-violet-100">
+                        <h3 class="font-bold text-lg text-violet-900 mb-4">"Good Burn" Calculator</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase">Sales & Marketing Growth</label>
+                                <input type="range" id="sm-growth" min="0" max="100" value="20" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                <span id="sm-val" class="text-sm font-mono text-slate-700">20%</span>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase">Revenue Growth</label>
+                                <input type="range" id="rev-growth" min="0" max="100" value="30" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                <span id="rev-val" class="text-sm font-mono text-slate-700">30%</span>
+                            </div>
+                            <div class="pt-4 border-t border-violet-200">
+                                <div id="burn-verdict" class="text-xl font-bold text-emerald-600">Operating Leverage!</div>
+                                <p id="burn-desc" class="text-xs text-slate-600 mt-1">Revenue is growing faster than spending. The product is selling itself (Viral/Network Effects).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Qualitative Alpha -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                        <h3 class="font-bold text-lg text-slate-800 mb-2">3. Qualitative Alpha</h3>
+                        <p class="text-sm text-slate-600 mb-3">Disruption creates friction. Look beyond the spreadsheet.</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-stone-50 p-3 rounded">
+                                <span class="block font-bold text-violet-700 text-xs uppercase">Optionality</span>
+                                <span class="text-xs text-slate-600">Does the company have a "Second Act"? (e.g., Amazon moving from Books -> AWS).</span>
+                            </div>
+                            <div class="bg-stone-50 p-3 rounded">
+                                <span class="block font-bold text-violet-700 text-xs uppercase">Vitality Index</span>
+                                <span class="text-xs text-slate-600">% of revenue from products launched in the last 3 years. Should be >10%.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Col: The Visual -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 flex flex-col h-full">
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">2. The Cash Flow J-Curve</h3>
+                    <p class="text-sm text-slate-500 mb-4">Standard accounting sees a "Loss." Innovators see the "Valley of Death" before exponential rise.</p>
+                    <div class="chart-container flex-grow">
+                        <canvas id="innovationChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-3 bg-stone-50 rounded text-xs text-slate-500 italic text-center">
+                        "Negative OCF is acceptable IF the loss is driven by Customer Acquisition."
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
         <!-- VIEW: STUDY GUIDE -->
         <section id="view-guide" class="hidden fade-in-section">
             <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-stone-200">
@@ -784,6 +862,8 @@
                 updateNarrativeTest(); // Ensure chart renders
             } else if (viewId === 'ebitda') {
                 updateEbitdaChart(); // Ensure chart renders
+            } else if (viewId === 'innovation') {
+                updateInnovationChart(); // Ensure chart renders
             }
         }
 
@@ -995,11 +1075,103 @@
             });
         }
 
+        // --- 5. INNOVATION LOGIC (NEW) ---
+        let innovationChartInstance = null;
+
+        // Initialize and Update sliders
+        const smSlider = document.getElementById('sm-growth');
+        const revSlider = document.getElementById('rev-growth');
+        const smVal = document.getElementById('sm-val');
+        const revVal = document.getElementById('rev-val');
+        const burnVerdict = document.getElementById('burn-verdict');
+        const burnDesc = document.getElementById('burn-desc');
+
+        function updateBurnCalc() {
+            const sm = parseInt(smSlider.value);
+            const rev = parseInt(revSlider.value);
+            
+            smVal.innerText = sm + '%';
+            revVal.innerText = rev + '%';
+
+            if (rev > sm) {
+                burnVerdict.innerText = "Operating Leverage (Good Burn)";
+                burnVerdict.className = "text-xl font-bold text-emerald-600";
+                burnDesc.innerText = "Revenue is growing faster than spending. The product is catching on!";
+            } else if (rev === sm) {
+                burnVerdict.innerText = "Neutral Scale";
+                burnVerdict.className = "text-xl font-bold text-amber-600";
+                burnDesc.innerText = "Spending efficiently, but not yet seeing exponential returns.";
+            } else {
+                burnVerdict.innerText = "Cash Incinerator (Bad Burn)";
+                burnVerdict.className = "text-xl font-bold text-red-600";
+                burnDesc.innerText = "You are spending huge money on ads but not getting enough growth back. Danger!";
+            }
+        }
+
+        if(smSlider && revSlider) {
+            smSlider.addEventListener('input', updateBurnCalc);
+            revSlider.addEventListener('input', updateBurnCalc);
+        }
+
+        function updateInnovationChart() {
+            const ctx = document.getElementById('innovationChart').getContext('2d');
+            
+            if (innovationChartInstance) {
+                innovationChartInstance.destroy(); // Prevent duplicates
+            }
+
+            innovationChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Launch', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Scale'],
+                    datasets: [{
+                        label: 'Free Cash Flow',
+                        data: [-10, -25, -15, 5, 40, 100],
+                        borderColor: '#7c3aed', // Violet-600
+                        backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: ['#ef4444', '#ef4444', '#ef4444', '#10b981', '#10b981', '#10b981'], // Red points for neg, green for pos
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            grid: { color: '#e7e5e4' },
+                            title: { display: true, text: 'Cash Flow ($)' }
+                        }
+                    },
+                    plugins: {
+                        annotation: { // Note: Annotation plugin not loaded, using title workaround or tooltip
+                            // Simplified for base Chart.js
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.raw < 0) {
+                                        return `Burn: $${context.raw}M (Valley of Death)`;
+                                    } else {
+                                        return `Profit: $${context.raw}M (Harvest Phase)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         // Initialize defaults on load
         window.addEventListener('load', () => {
             // Check if URL hash exists for direct linking
             updateNarrativeTest();
             updateEbitdaChart();
+            // Initialize sliders manually
+            if(smSlider) updateBurnCalc();
         });
 
     </script>
